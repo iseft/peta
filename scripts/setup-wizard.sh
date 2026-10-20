@@ -213,6 +213,8 @@ cd "$(dirname "$0")/.."
 # _PROD suffix.
 CLERK_ITEM="Clerk"
 PAYLOAD_ITEM="Payload"
+# Public production URLs for the mobile release build.
+RAILWAY_ITEM="Railway"
 
 # save_fields ITEM LABEL=VALUE... sets those fields on a 1Password item,
 # creating the item if needed and leaving every other field as it was:
@@ -405,6 +407,12 @@ for pair in PAYLOAD_SECRET:payload_secret_prod REVALIDATE_SECRET:revalidate_secr
   op read "op://$VAULT/$PAYLOAD_ITEM/${pair#*:}" | railway variable set "${pair%%:*}" --stdin --service web --skip-deploys >/dev/null
 done
 printf '  %s✓ set%s Payload secrets on web (from 1Password)\n' "$GREEN" "$RESET"
+# CMS uploads go to the `media` bucket; web refuses to start on Railway without it.
+railway variable set \
+  'S3_BUCKET=${{media.BUCKET}}' 'S3_ENDPOINT=${{media.ENDPOINT}}' 'S3_REGION=${{media.REGION}}' \
+  'S3_ACCESS_KEY_ID=${{media.ACCESS_KEY_ID}}' 'S3_SECRET_ACCESS_KEY=${{media.SECRET_ACCESS_KEY}}' \
+  --service web --skip-deploys >/dev/null
+printf '  %s✓ set%s S3_* on web (references to the media bucket)\n' "$GREEN" "$RESET"
 if ! has_field "$CLERK_ITEM" CLERK_SECRET_KEY_PROD; then
   warn "1Password has no production Clerk secret key (CLERK_SECRET_KEY_PROD in item $CLERK_ITEM)."
   step "Create the Clerk Production instance, re-run this wizard and enter its keys in stage 2."
@@ -423,7 +431,8 @@ say "Waiting for the deploy to go healthy (the first build takes a few minutes)�
 for _ in 1 2 3 4 5; do
   wait_for_health "https://${API_DOMAIN#https://}/api/health" && break
 done || warn "not healthy yet; check the deploy logs in the Railway dashboard"
-note "Put https://${API_DOMAIN#https://} into apps/mobile/src/config.ts as the production API URL."
+# The release build reads these (scripts/build-android-release.sh).
+save_fields "$RAILWAY_ITEM" "api_url_prod=https://${API_DOMAIN#https://}/api" "web_url_prod=https://${WEB_DOMAIN#https://}"
 pause
 
 stage "Better Stack: error reporting (optional)"

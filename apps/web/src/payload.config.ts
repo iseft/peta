@@ -17,6 +17,16 @@ import { Blog } from './marketing/collections/Blog'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
+const s3Configured = Boolean(
+  process.env.S3_BUCKET && process.env.S3_ACCESS_KEY_ID && process.env.S3_SECRET_ACCESS_KEY,
+)
+// On Railway the filesystem is wiped on every deploy, so uploads written to
+// disk would vanish while pages keep pointing at them. The setup wizard wires
+// the `media` bucket's variables into the web service.
+if (process.env.RAILWAY_ENVIRONMENT_NAME && !s3Configured) {
+  throw new Error('S3_BUCKET, S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY must be set on Railway')
+}
+
 export default buildConfig({
   admin: {
     user: Users.slug,
@@ -63,9 +73,7 @@ export default buildConfig({
     s3Storage({
       // Off until fully configured, so a local checkout keeps writing to disk
       // rather than failing on a bucket nobody has.
-      enabled: Boolean(
-        process.env.S3_BUCKET && process.env.S3_ACCESS_KEY_ID && process.env.S3_SECRET_ACCESS_KEY,
-      ),
+      enabled: s3Configured,
       collections: {
         media: true,
       },
