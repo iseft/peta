@@ -1,0 +1,40 @@
+model User {
+  id                         String          @id @default(uuid())
+  clerkId                    String          @unique
+  name                       String?
+  // ISO 4217. Null until onboarding, which also sets the Opening Balance.
+  defaultCurrency            String?
+  openingBalanceMinor        BigInt?
+  openingBalanceCurrency     String?
+  openingBalanceRate         Decimal?        @db.Decimal(20, 10)
+  openingBalanceDate         DateTime?       @db.Date
+  emergencyFundTargetMonths  Int             @default(6)
+  onboardedAt                DateTime?
+  paymentDetails             PaymentDetail[]
+  subcategories              Subcategory[]
+  budgetItems                BudgetItem[]
+  transactions               Transaction[]
+  funds                      Fund[]
+  createdAt                  DateTime        @default(now())
+}
+
+// A deleted account's Clerk ID, so a request still in flight can never
+// recreate the account (Clerk never reuses IDs).
+model DeletedAccount {
+  clerkId   String   @id
+  deletedAt DateTime @default(now())
+}
+
+model PaymentDetail {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label      String
+  holderName String?
+  // Account number, IBAN or payment handle, exactly as the user typed it.
+  value      String
+  position   Int
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+}

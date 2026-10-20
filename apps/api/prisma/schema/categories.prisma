@@ -1,0 +1,39 @@
+enum BudgetClass {
+  NEED
+  WANT
+  SAVING
+}
+
+enum CategoryKind {
+  INCOME
+  EXPENSE
+}
+
+// Seeded system data (src/seed); users never create Categories.
+model Category {
+  // Readable slug, e.g. "housing".
+  id            String        @id
+  name          String
+  kind          CategoryKind
+  budgetClass   BudgetClass?
+  // False for Bank Fees, which only Transactions may use.
+  plannable     Boolean       @default(true)
+  position      Int
+  subcategories Subcategory[]
+}
+
+model Subcategory {
+  id          String       @id @default(uuid())
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categoryId  String
+  category    Category     @relation(fields: [categoryId], references: [id])
+  name        String
+  archivedAt  DateTime?
+  budgetItems BudgetItem[]
+  lines       Line[]
+  createdAt   DateTime     @default(now())
+
+  @@unique([userId, categoryId, name])
+  @@index([userId])
+}

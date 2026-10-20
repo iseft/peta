@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: peta-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${PETA_DB_PASSWORD:-postgres}
+      POSTGRES_DB: peta
+    # 5432–5434 are taken by pitchworthy's and language-learning-app-blocker's containers.
+    ports:
+      - "5435:5432"
+    volumes:
+      - peta_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d peta"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  peta_pgdata:

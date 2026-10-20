@@ -1,0 +1,61 @@
+{
+  "name": "peta",
+  "private": true,
+  "packageManager": "pnpm@10.30.0",
+  "engines": {
+    "node": "22.x"
+  },
+  "scripts": {
+    "dev:backend": "pnpm --filter backend dev",
+    "build:shared": "pnpm --filter @peta/shared build",
+    "build:backend": "pnpm --filter backend build",
+    "start:backend": "pnpm --filter backend start:prod",
+    "build": "pnpm run build:shared && pnpm run build:backend",
+    "start": "pnpm run start:backend",
+    "test:backend": "pnpm --filter backend test",
+    "test:shared": "pnpm --filter @peta/shared test",
+    "check:node": "node scripts/check-node.mjs",
+    "test": "pnpm run check:node && pnpm run test:shared && pnpm run test:backend && pnpm run test:mobile && pnpm run test:web",
+    "lint:shared": "pnpm --filter @peta/shared lint",
+    "lint:backend": "pnpm --filter backend lint",
+    "lint": "pnpm run lint:shared && pnpm run lint:backend && pnpm run lint:mobile && pnpm run lint:web",
+    "type-check": "pnpm -r run type-check",
+    "prepare": "husky",
+    "prisma:deploy:backend": "pnpm --filter backend prisma:deploy",
+    "postinstall": "pnpm run build:shared",
+    "env:pull": "bash scripts/env-pull.sh",
+    "db:up": "docker compose up -d postgres",
+    "seed:backend": "pnpm --filter backend seed",
+    "dev:mobile": "pnpm --filter mobile start",
+    "android": "pnpm --filter mobile android",
+    "build:android:release": "scripts/build-android-release.sh",
+    "test:mobile": "pnpm --filter mobile test",
+    "lint:mobile": "pnpm --filter mobile lint",
+    "dev:web": "pnpm --filter web dev",
+    "build:web": "pnpm --filter web build",
+    "start:web": "pnpm --filter web start",
+    "test:web": "pnpm --filter web test",
+    "lint:web": "pnpm --filter web lint",
+    "payload:migrate:web": "pnpm --filter web payload migrate",
+    "push:legal:prod": "SITE_URL=${SITE_URL:?Set SITE_URL to the production web URL} op run --no-masking --env-file=scripts/payload-admin-prod.env -- pnpm --filter web push:legal",
+    "seed:web": "pnpm --filter web seed"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "railway": "^3.16.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@clerk/shared",
+      "@nestjs/core",
+      "@prisma/client",
+      "@prisma/engines",
+      "@sentry/cli",
+      "better-sqlite3",
+      "esbuild",
+      "prisma",
+      "sharp",
+      "unrs-resolver"
+    ]
+  }
+}

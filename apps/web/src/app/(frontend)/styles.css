@@ -1,0 +1,62 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+
+/* Dark mode follows the system setting. */
+@custom-variant dark (@media (prefers-color-scheme: dark));
+
+/* Design tokens from docs/design-guidelines.md: mostly ink + paper + lime. */
+@theme {
+  --font-sans: ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+
+  --color-ink: #151515;
+  --color-paper: #f9f7f1;
+  --color-lime: #c8ff3d;
+  --color-purple: #8054ff;
+  --color-coral: #ff6962;
+
+  /* The ported blocks speak in a `brand` scale: its dark end is ink (labels,
+     primary buttons on paper), 400 is lime (accents on ink in dark mode). */
+  --color-brand-50: #f4ffd6;
+  --color-brand-100: #e9ffad;
+  --color-brand-200: #dcff85;
+  --color-brand-300: #d2ff61;
+  --color-brand-400: #c8ff3d;
+  --color-brand-500: #2a2a2a;
+  --color-brand-600: #151515;
+  --color-brand-700: #151515;
+  --color-brand-800: #0d0d0d;
+  --color-brand-900: #000000;
+
+  /* Warm greys to sit on paper instead of Tailwind's cool ones. */
+  --color-gray-50: #fafaf9;
+  --color-gray-100: #f2efe6;
+  --color-gray-200: #e7e5e4;
+  --color-gray-300: #d6d3d1;
+  --color-gray-400: #a8a29e;
+  --color-gray-500: #78716c;
+  --color-gray-600: #57534e;
+  --color-gray-700: #44403c;
+  --color-gray-800: #262626;
+  --color-gray-900: #151515;
+  --color-gray-950: #0c0c0c;
+}
+
+@layer base {
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+}
+
+@layer components {
+  .prose img {
+    @apply block h-auto w-full rounded-xl border-2 border-ink object-contain dark:border-paper;
+  }
+
+  .prose picture {
+    @apply block w-full;
+  }
+}
