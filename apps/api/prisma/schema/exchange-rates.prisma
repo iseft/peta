@@ -1,0 +1,10 @@
+// Daily ECB reference rates, cached per day: `rate` is
+// units of `currency` per 1 EUR on `date` (weekends and holidays carry the
+// previous working day's rate).
+model ExchangeRate {
+  date     DateTime @db.Date
+  currency String
+  rate     Decimal  @db.Decimal(20, 10)
+
+  @@id([date, currency])
+}

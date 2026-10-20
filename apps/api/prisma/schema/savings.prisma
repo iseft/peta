@@ -1,0 +1,36 @@
+enum AssetClass {
+  STOCK
+  BOND
+  OTHER
+}
+
+// Savings or the Emergency Fund; every user has one of each.
+model Fund {
+  id                     String    @id @default(uuid())
+  userId                 String
+  user                   User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind                   FundKind
+  // What was already in the Fund before the user started using Peta.
+  openingBalanceMinor    BigInt    @default(0)
+  openingBalanceCurrency String?
+  openingBalanceRate     Decimal?  @db.Decimal(20, 10)
+  openingBalanceDate     DateTime? @db.Date
+  rebalanceDueOn         DateTime? @db.Date
+  holdings               Holding[]
+
+  @@unique([userId, kind])
+}
+
+model Holding {
+  id                          String      @id @default(uuid())
+  fundId                      String
+  fund                        Fund        @relation(fields: [fundId], references: [id], onDelete: Cascade)
+  name                        String
+  // Null in the Emergency Fund, whose Holdings only have a name and allocation.
+  assetClass                  AssetClass?
+  targetAllocationPercent     Decimal     @db.Decimal(5, 2)
+  expectedAnnualReturnPercent Decimal?    @db.Decimal(5, 2)
+  position                    Int
+
+  @@index([fundId])
+}

@@ -1,0 +1,30 @@
+enum RecurrenceUnit {
+  WEEK
+  MONTH
+  YEAR
+}
+
+// Recurring when recurrenceUnit is set (every recurrenceInterval units from
+// startDate until endDate), otherwise one-off on startDate (ADR 0003).
+model BudgetItem {
+  id                 String          @id @default(uuid())
+  userId             String
+  user               User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subcategoryId      String
+  subcategory        Subcategory     @relation(fields: [subcategoryId], references: [id])
+  // Shown instead of the Subcategory's name when set, e.g. "Trip to Rome".
+  name               String?
+  amountMinor        BigInt
+  currency           String
+  // Default Currency per unit of `currency` on startDate (ADR 0002).
+  rateToDefault      Decimal         @db.Decimal(20, 10)
+  recurrenceUnit     RecurrenceUnit?
+  recurrenceInterval Int?
+  startDate          DateTime        @db.Date
+  endDate            DateTime?       @db.Date
+  lines              Line[]
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+
+  @@index([userId])
+}

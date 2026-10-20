@@ -1,0 +1,45 @@
+enum FundKind {
+  SAVINGS
+  EMERGENCY_FUND
+}
+
+enum FundMovement {
+  CONTRIBUTION
+  WITHDRAWAL
+}
+
+model Transaction {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name          String
+  date          DateTime @db.Date
+  currency      String
+  // Default Currency per unit of `currency` on `date` (ADR 0002).
+  rateToDefault Decimal  @db.Decimal(20, 10)
+  lines         Line[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([userId, date])
+}
+
+// A Line's Assignment is either budgetItemId or fundKind + fundMovement.
+// subcategoryId is null only for a Withdrawal from Savings, which is neither
+// spending nor income.
+model Line {
+  id            String        @id @default(uuid())
+  transactionId String
+  transaction   Transaction   @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  subcategoryId String?
+  subcategory   Subcategory?  @relation(fields: [subcategoryId], references: [id])
+  amountMinor   BigInt
+  budgetItemId  String?
+  budgetItem    BudgetItem?   @relation(fields: [budgetItemId], references: [id], onDelete: SetNull)
+  fundKind      FundKind?
+  fundMovement  FundMovement?
+  position      Int
+
+  @@index([transactionId])
+  @@index([budgetItemId])
+}

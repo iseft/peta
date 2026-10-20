@@ -1,0 +1,94 @@
+{
+  "name": "backend",
+  "version": "0.0.1",
+  "private": true,
+  "license": "UNLICENSED",
+  "prisma": {
+    "schema": "prisma/schema"
+  },
+  "scripts": {
+    "build-shared-deps": "pnpm --filter @peta/shared build",
+    "predev": "pnpm run build-shared-deps",
+    "prebuild": "pnpm run build-shared-deps",
+    "build": "pnpm run prisma:generate && nest build",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "start": "nest start",
+    "dev": "dotenv -e .env -- nest start --watch",
+    "start:debug": "dotenv -e .env -- nest start --debug --watch",
+    "start:prod": "node dist/main",
+    "lint": "eslint \"{src,test}/**/*.ts\" --fix",
+    "type-check": "tsc -p tsconfig.json --noEmit",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:cov": "jest --coverage",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "dotenv -e .env -- prisma migrate dev",
+    "prisma:deploy": "prisma migrate deploy",
+    "postinstall": "pnpm run prisma:generate",
+    "seed": "node dist/seed/seed.js",
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject ./dist && (sentry-cli sourcemaps upload ./dist || true)",
+    "seed:dev": "pnpm run build && dotenv -e .env -- node dist/seed/seed.js"
+  },
+  "dependencies": {
+    "@clerk/backend": "2.7.0",
+    "@peta/shared": "workspace:*",
+    "@nestjs/common": "11.1.6",
+    "@nestjs/config": "4.0.2",
+    "@nestjs/core": "11.1.6",
+    "@nestjs/platform-express": "11.1.6",
+    "@nestjs/throttler": "6.5.0",
+    "@prisma/client": "6.13.0",
+    "@sentry/nestjs": "10.53.1",
+    "express": "^5.1.0",
+    "helmet": "8.1.0",
+    "reflect-metadata": "0.2.2",
+    "rxjs": "7.8.2",
+    "zod": "4.3.6"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "3.3.1",
+    "@eslint/js": "9.33.0",
+    "@nestjs/cli": "11.0.10",
+    "@nestjs/schematics": "11.0.7",
+    "@nestjs/testing": "11.1.6",
+    "@sentry/cli": "2.58.5",
+    "@types/express": "5.0.6",
+    "@types/jest": "30.0.0",
+    "@types/node": "22.17.1",
+    "dotenv-cli": "11.0.0",
+    "eslint": "9.33.0",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-prettier": "5.5.4",
+    "globals": "16.3.0",
+    "jest": "30.0.5",
+    "prettier": "3.6.2",
+    "prisma": "6.13.0",
+    "source-map-support": "0.5.21",
+    "ts-jest": "29.4.1",
+    "ts-loader": "9.5.2",
+    "ts-node": "10.9.2",
+    "tsconfig-paths": "4.2.0",
+    "typescript": "5.9.2",
+    "typescript-eslint": "8.39.0"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "rootDir": "src",
+    "testRegex": ".*\\.spec\\.ts$",
+    "transform": {
+      "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "collectCoverageFrom": [
+      "**/*.(t|j)s"
+    ],
+    "coverageDirectory": "../coverage",
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "^@db$": "<rootDir>/generated/prisma"
+    }
+  }
+}

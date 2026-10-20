@@ -1,0 +1,46 @@
+{
+  "name": "@peta/shared",
+  "version": "1.0.0",
+  "private": true,
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/esm/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b tsconfig.cjs.json tsconfig.esm.json",
+    "build:clean": "rm -rf dist/ .tsbuildinfo.* && pnpm run build",
+    "type-check": "tsc -p tsconfig.json --noEmit",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint ."
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/*.spec.ts"
+    ],
+    "testPathIgnorePatterns": [
+      "/dist/",
+      "/node_modules/"
+    ]
+  },
+  "devDependencies": {
+    "@types/jest": "30.0.0",
+    "@typescript-eslint/eslint-plugin": "8.39.0",
+    "@typescript-eslint/parser": "8.39.0",
+    "eslint": "9.33.0",
+    "jest": "30.0.5",
+    "ts-jest": "29.4.1",
+    "typescript": "5.9.2"
+  },
+  "dependencies": {
+    "zod": "4.3.6"
+  }
+}
