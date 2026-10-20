@@ -1,13 +1,15 @@
 import { isClerkAPIResponseError, useAuth, useSignIn, useSignUp } from '@clerk/expo';
 import { Redirect } from 'expo-router';
+import * as WebBrowser from 'expo-web-browser';
 import { useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
 
 import { Button } from '@/components/button';
 import { Screen } from '@/components/screen';
 import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
-import { APP_NAME } from '@/config';
+import { APP_NAME, CLERK_PUBLISHABLE_KEY } from '@/config';
+import { accountPortalSignInUrl } from '@/lib/account-portal';
 
 type Step =
   | { kind: 'credentials'; mode: 'sign-in' | 'sign-up' }
@@ -15,7 +17,9 @@ type Step =
   | { kind: 'code'; flow: 'sign-up' | 'device-trust'; email: string };
 
 // Email + password (the requirements deck). Clerk enforces the password
-// rules, so its own message is what the user sees.
+// rules, so its own message is what the user sees. Forgotten passwords are
+// reset on Clerk's hosted Account Portal.
+const FORGOT_PASSWORD_URL = accountPortalSignInUrl(CLERK_PUBLISHABLE_KEY);
 export default function SignInScreen() {
   const { isSignedIn } = useAuth();
   const { signIn } = useSignIn();
@@ -171,6 +175,16 @@ export default function SignInScreen() {
         autoComplete={signingUp ? 'new-password' : 'current-password'}
         hint={signingUp ? 'At least 15 characters. A short sentence works well.' : undefined}
       />
+      {!signingUp && FORGOT_PASSWORD_URL && (
+        <Pressable
+          accessibilityRole="link"
+          onPress={() => void WebBrowser.openBrowserAsync(FORGOT_PASSWORD_URL)}
+          style={styles.link}>
+          <ThemedText type="smallBold" themeColor="textSecondary">
+            Forgot password? Reset it on our sign-in page, then come back here.
+          </ThemedText>
+        </Pressable>
+      )}
       {message && <ThemedText accessibilityLiveRegion="polite">{message}</ThemedText>}
     </Screen>
   );
@@ -185,4 +199,5 @@ function describeError(error: unknown): string {
 
 const styles = StyleSheet.create({
   code: { fontSize: 28, letterSpacing: 8, textAlign: 'center' },
+  link: { minHeight: 48, justifyContent: 'center' },
 });
